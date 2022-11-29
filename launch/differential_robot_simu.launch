@@ -1,0 +1,35 @@
+<launch>
+  <remap from="dr_diffdrive_controller/cmd_vel" to="controller_diffdrive/cmd_vel" />
+
+  <arg name="model" default="$(find ias0220_201400)/urdf/differential_robot_simu.urdf"/>
+  <arg name="rvizconfig" default="$(find ias0220_201400)/config/differential_robot_rviz.rviz" />
+
+  <include file="$(find ias0220_201400)/launch/gazebo.launch">
+    <arg name="gui" value="false" />
+    <arg name="model" value="$(arg model)" />
+    <arg name="world_name" value="$(find ias0220_201400)/worlds/test.world"/>
+  </include>
+
+  <rosparam command="load" file="$(find ias0220_201400)/config/diffdrive.yaml" ns="dr_diffdrive_controller" />
+  <rosparam command="load" file="$(find ias0220_201400)/config/joints.yaml" ns="dr_joint_state_controller" />
+  <rosparam command="load" file="$(find ias0220_201400)/config/simple_control_v2.yaml" param="controller_waypoints" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+  <node name="encoders" pkg="ias0220_201400" type="encoders_node.py" />
+  <node name="odom" pkg="ias0220_201400" type="odometry_node.py" output="screen" />
+  <node name="pd_controller" pkg="ias0220_201400" type="simple_control_template.py" output="screen" launch-prefix="gnome-terminal -- " />
+  <node 
+    name="robot_frame_broadcaster" 
+    pkg="tf" 
+    type="static_transform_publisher"
+    args="0 0 0 0 0 0 1 odom map 10" 
+  /> 
+  <node 
+    name="dr_controller_spawner" 
+    pkg="controller_manager" 
+    type="spawner"
+    args="dr_diffdrive_controller
+          dr_joint_state_controller
+          --shutdown-timeout 3"
+  />
+</launch>

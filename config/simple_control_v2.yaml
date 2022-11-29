@@ -1,0 +1,10 @@
+### mission params ###
+mission:
+  # waypoint units in [[m], [m]]
+  waypoints: [[4.0, 0.0], [5.0, 1.5], [2.0, 1.5], [-1.0, 5.25], [-3.5, 5.25], [-3.5, -4.5], [4.0, -2.0]]
+  distance_margin: 0.15   # [m]
+### controller params ###
+controller:
+  # controller gains
+  Kp: [0.7, 3.2]  # proportional gains [linear, angular]
+  Kd: [0.2, 0.2]  # derivative gains [linear, angular]

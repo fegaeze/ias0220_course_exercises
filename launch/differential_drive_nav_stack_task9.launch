@@ -1,0 +1,37 @@
+<launch>
+    <remap from="dr_diffdrive_controller/cmd_vel" to="/cmd_vel" />
+    
+    <arg name="model" default="$(find ias0220_201400)/urdf/differential_robot_simu.urdf"/>
+    <arg name="rvizconfig" default="$(find ias0220_201400)/config/config_path_planning.rviz" />
+
+    <rosparam file="$(find ias0220_201400)/config/joints.yaml" command="load" ns="dr_joint_state_controller" />
+    <rosparam file="$(find ias0220_201400)/config/diffdrive.yaml" command="load" ns="dr_diffdrive_controller" />
+
+    <include file="$(find ias0220_201400)/launch/gazebo.launch">
+        <arg name="gui" value="true" />
+        <arg name="model" value="$(arg model)" />
+        <arg name="world_name" value="$(find ias0220_201400)/worlds/test.world"/>
+    </include>
+
+    <node name="slam_gmapping" pkg="gmapping" type="slam_gmapping"/> 
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+    <node name="encoders" pkg="ias0220_201400" type="encoders_node.py" />
+    <node name="odom" pkg="ias0220_201400" type="odometry_node.py" />
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find ias0220_201400)/config/costmap_common_params.yaml" command="load" ns="global_costmap" /> 
+        <rosparam file="$(find ias0220_201400)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find ias0220_201400)/config/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find ias0220_201400)/config/global_costmap_params.yaml" command="load" /> 
+        <rosparam file="$(find ias0220_201400)/config/base_local_planner_params.yaml" command="load" />
+    </node>
+
+    <node 
+        name="dr_controller_spawner" 
+        pkg="controller_manager" 
+        type="spawner"
+        args="dr_diffdrive_controller
+            dr_joint_state_controller
+            --shutdown-timeout 3"
+    />
+</launch>

@@ -1,0 +1,12 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro '$(find ias0220_201400)/urdf/differential_robot_task2.urdf'"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+  <arg name="use_gui" default="true"/>  
+  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" output="screen" if="$(arg use_gui)"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ias0220_201400)/config/differential_robot_rviz.rviz" />
+
+  <remap from="move/cmd_vel" to="keyboard_control/cmd_vel" />
+  <node name="move_robot" pkg="transform_frame" type="move" />
+  <node name="keyboard_input" pkg="teleop_twist_keyboard_extended" type="teleop_twist_keyboard.py" args="0.13 0.44 0.25 1.05 1.05" output="screen" launch-prefix="gnome-terminal -- " />
+</launch>

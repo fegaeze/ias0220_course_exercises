@@ -1,0 +1,10 @@
+<launch>
+    <!-- play back messages from bag file -->
+    <arg name = "filename" default="shortBag.bag" />
+    <arg name = "bag_directory" default="$(find ias0220_201400)/bags/" />
+    <arg name="rvizconfig" default="$(find ias0220_201400)/config/bagfile.rviz" />
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" />
+    <!-- rosbag node republishes messages on a loop -->
+    <node pkg="rosbag" type="play" name="player" output="screen" args="-l $(arg bag_directory)$(arg filename)"/>
+</launch>
